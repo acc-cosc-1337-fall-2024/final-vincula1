@@ -3,6 +3,8 @@
 #include "die.h"
 #include "roll.h"
 #include "shooter.h"
+#include "point_phase.h"
+#include "come_out_phase.h"
 
 TEST_CASE("Verify Test Configuration", "verification") {
 	REQUIRE(true == true);
@@ -72,5 +74,57 @@ TEST_CASE("Testing shooter throw for valid values between 2 and 12, 10 rolls") {
             REQUIRE(result >= 2);
             REQUIRE(result <= 12);
         }
+    }
+}
+
+TEST_CASE("ComeOutPhase get outcomes", "[ComeOutPhase]") {
+    Die die1, die2;
+    ComeOutPhase comeOutPhase;
+    Roll roll(die1, die2);
+
+    SECTION("Natural outcome") {
+        die1.set_value(3);
+        die2.set_value(4);
+        roll.roll_dice();
+        REQUIRE(comeOutPhase.get_outcome(&roll) == RollOutcome::natural);
+    }
+    SECTION("Craps outcome") {
+        die1.set_value(1);
+        die2.set_value(1);
+        roll.roll_dice();
+        REQUIRE(comeOutPhase.get_outcome(&roll) == RollOutcome::craps);
+    }
+    SECTION("Point outcome") {
+        die1.set_value(4);
+        die2.set_value(2);
+        roll.roll_dice();
+        REQUIRE(comeOutPhase.get_outcome(&roll) == RollOutcome::point);
+    }
+}
+
+TEST_CASE("PointPhase get outcomes", "[PointPhase]") {
+    Die die1, die2;
+    Roll roll(die1, die2);
+
+    SECTION("Point outcome") {
+        PointPhase pointPhase(8);
+        die1.set_value(5);
+        die2.set_value(3);
+        roll.roll_dice();
+        REQUIRE(pointPhase.get_outcome(&roll) == RollOutcome::point);
+    }
+    SECTION("Point outcome") {
+        PointPhase pointPhase(5);
+        die1.set_value(4);
+        die2.set_value(3);
+        roll.roll_dice();
+        REQUIRE(pointPhase.get_outcome(&roll) == RollOutcome::seven_out);
+    }
+    SECTION("Point outcome") {
+        PointPhase pointPhase(6);
+        die1.set_value(3);
+        die2.set_value(2);
+        roll.roll_dice();
+        REQUIRE(pointPhase.get_outcome(&roll) == RollOutcome::nopoint);
     }
 }
