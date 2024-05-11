@@ -76,3 +76,53 @@ TEST_CASE("Testing shooter throw for valid values between 2 and 12, 10 rolls") {
         }
     }
 }
+
+TEST_CASE("Verifying comeoutphase and pointphase outcomes") {
+
+    srand(time(0));
+
+
+    int new_point = 4;
+    Die d1, d2;
+    Roll newRoll(d1, d2);
+    Shooter newShooter;
+    ComeOutPhase newComeOutPhase;
+    PointPhase newPointPhase(new_point);
+    
+    for(int i = 0; i < 10; i++)
+    {
+        Roll* currentRoll = newShooter.throw_dice(d1,d2);
+
+        std::cout<<"Roll : "<<currentRoll->roll_value()<<std::endl;
+
+        //testing comeoutphase :3
+
+        if(currentRoll->roll_value() == 7 || currentRoll->roll_value() == 11)
+        {
+            REQUIRE(newComeOutPhase.get_outcome(currentRoll) == RollOutcome::natural);
+        }
+        else if(currentRoll->roll_value() == 2 || currentRoll->roll_value() == 3 || currentRoll->roll_value() == 12)
+        {
+            REQUIRE(newComeOutPhase.get_outcome(currentRoll) == RollOutcome::craps);
+        }
+        else
+        {
+            REQUIRE(newComeOutPhase.get_outcome(currentRoll) == RollOutcome::point);
+        }
+
+        //testing point phase outcomes :3
+
+        if(currentRoll->roll_value() == new_point)
+        {
+            REQUIRE(newPointPhase.get_outcome(currentRoll) == RollOutcome::point);
+        }
+        else if(currentRoll->roll_value() == 7)
+        {
+            REQUIRE(newPointPhase.get_outcome(currentRoll) == RollOutcome::seven_out);
+        }
+        else
+        {
+            REQUIRE(newPointPhase.get_outcome(currentRoll) == RollOutcome::nopoint);
+        }
+    }
+}
